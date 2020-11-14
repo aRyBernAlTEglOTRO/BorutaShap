@@ -1,9 +1,11 @@
 from setuptools import setup
 
+
 def readme():
-    with open('README.md') as f:
+    with open("README.md") as f:
         README = f.read()
     return README
+
 
 setup(
     name="BorutaShap",
@@ -20,10 +22,17 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
     ],
-    py_modules = ["BorutaShap"],
-    package_dir = {"" : "src"},
-    install_requires=["scikit-learn","tqdm",
-                      "statsmodels","matplotlib",
-                      "pandas","numpy","shap>=0.34.0","seaborn",
-                      "scipy"],
+    py_modules=["BorutaShap"],
+    package_dir={"": "src"},
+    install_requires=[
+        "scikit-learn",
+        "tqdm",
+        "statsmodels",
+        "matplotlib",
+        "pandas",
+        "numpy",
+        "shap>=0.34.0",
+        "seaborn",
+        "scipy",
+    ],
 )
