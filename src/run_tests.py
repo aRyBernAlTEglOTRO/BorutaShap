@@ -14,16 +14,14 @@ def test_models(data_type, models):
     for key, value in models.items():
         print("Testing: " + str(key))
         # no model selected default is Random Forest, if classification is False it is a Regression problem
-        Feature_Selector = BorutaShap(
+        feature_selector = BorutaShap(
             model=value, importance_measure="shap", classification=True
         )
 
-        Feature_Selector.fit(
-            x=x, y=y, n_trials=5, random_state=0, train_or_test="train"
-        )
+        feature_selector.fit(x=x, y=y, n_trials=5, random_state=0)
 
         # Returns Boxplot of features disaplay False or True to see the plots for automation False
-        Feature_Selector.plot(
+        feature_selector.plot(
             x_size=12,
             figsize=(12, 8),
             y_scale="log",
