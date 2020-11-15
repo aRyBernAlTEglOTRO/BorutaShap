@@ -4,15 +4,13 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from xgboost import XGBClassifier, XGBRegressor
 
-from BorutaShap import BorutaShap, load_data
+from borutashap import BorutaShap, load_data
 
 
-def Test_Models(data_type, models):
-
-    X, y = load_data(data_type=data_type)
+def test_models(data_type, models):
+    x, y = load_data(data_type=data_type)
 
     for key, value in models.items():
-
         print("Testing: " + str(key))
         # no model selected default is Random Forest, if classification is False it is a Regression problem
         Feature_Selector = BorutaShap(
@@ -20,12 +18,12 @@ def Test_Models(data_type, models):
         )
 
         Feature_Selector.fit(
-            X=X, y=y, n_trials=5, random_state=0, train_or_test="train"
+            x=x, y=y, n_trials=5, random_state=0, train_or_test="train"
         )
 
         # Returns Boxplot of features disaplay False or True to see the plots for automation False
         Feature_Selector.plot(
-            X_size=12,
+            x_size=12,
             figsize=(12, 8),
             y_scale="log",
             which_features="all",
@@ -34,7 +32,6 @@ def Test_Models(data_type, models):
 
 
 if __name__ == "__main__":
-
     tree_classifiers = {
         "tree-classifier": DecisionTreeClassifier(),
         "forest-classifier": RandomForestClassifier(),
@@ -51,5 +48,5 @@ if __name__ == "__main__":
         "catboost-regressor": CatBoostRegressor(),
     }
 
-    Test_Models("regression", tree_regressors)
-    Test_Models("classification", tree_classifiers)
+    test_models("regression", tree_regressors)
+    test_models("classification", tree_classifiers)

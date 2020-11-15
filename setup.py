@@ -22,7 +22,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
     ],
-    py_modules=["BorutaShap"],
+    py_modules=["borutashap"],
     package_dir={"": "src"},
     install_requires=[
         "scikit-learn",
