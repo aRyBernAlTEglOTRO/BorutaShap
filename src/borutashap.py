@@ -7,12 +7,7 @@ import seaborn as sns
 import shap
 from numpy.random import choice
 from scipy.stats import binom_test, ks_2samp
-from sklearn.datasets import load_boston, load_breast_cancer
-from sklearn.ensemble import (
-    IsolationForest,
-    RandomForestClassifier,
-    RandomForestRegressor,
-)
+from sklearn.ensemble import IsolationForest, RandomForestClassifier, RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -20,16 +15,10 @@ warnings.filterwarnings("ignore")
 
 
 class BorutaShap:
-
-    """
-    BorutaShap is a wrapper feature selection method built on the foundations of both the SHAP and Boruta algorithms.
-
-    """
-
     def __init__(
         self,
         model=None,
-        importance_measure="Shap",
+        importance_measure="shap",
         classification=True,
         percentile=100,
         pvalue=0.05,
@@ -189,7 +178,8 @@ class BorutaShap:
         else:
             try:
                 self.model.fit(x, y, verbose=False)
-            except:
+            except Exception as e:
+                print(f"Due to toe error {e}, can't fit model with verbose kwargs")
                 self.model.fit(x, y)
 
     def fit(
@@ -379,9 +369,9 @@ class BorutaShap:
         if len(self.features_to_remove):
             for feature in self.features_to_remove:
                 try:
-                    self.X.drop(feature, axis=1, inplace=True)
-                except:
-                    pass
+                    self.x.drop(feature, axis=1, inplace=True)
+                except Exception as e:
+                    print(f"Due to the error {e}, can't remove the feature {feature}")
 
     @staticmethod
     def average_of_list(lst):
@@ -1070,44 +1060,3 @@ class BorutaShap:
         """
         return dict(zip(list_one, list_two))
 
-
-def load_data(data_type="classification"):
-    """
-    [summary]
-
-    Parameters
-    ----------
-    data_type : str, optional
-        [description], by default "classification"
-
-    Returns
-    -------
-    [type]
-        [description]
-
-    Raises
-    ------
-    ValueError
-        [description]
-    """
-    data_type = data_type.lower()
-    error_message = (
-        "No data_type was specified, use either 'classification' or 'regression'"
-    )
-    assert data_type in ["classification", "regression"], error_message
-
-    if data_type == "classification":
-        cancer = load_breast_cancer()
-        x = pd.DataFrame(
-            np.c_[cancer["data"], cancer["target"]],
-            columns=np.append(cancer["feature_names"], ["target"]),
-        )
-        y = x.pop("target")
-    else:
-        boston = load_boston()
-        x = pd.DataFrame(
-            np.c_[boston["data"], boston["target"]],
-            columns=np.append(boston["feature_names"], ["target"]),
-        )
-        y = x.pop("target")
-    return x, y

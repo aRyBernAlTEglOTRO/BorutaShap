@@ -4,7 +4,8 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from xgboost import XGBClassifier, XGBRegressor
 
-from borutashap import BorutaShap, load_data
+from borutashap import BorutaShap
+from utils import load_data
 
 
 def test_models(data_type, models):
