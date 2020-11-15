@@ -4,8 +4,7 @@ from sklearn.datasets import load_boston, load_breast_cancer
 
 
 def load_data(data_type="classification"):
-    """
-    [summary]
+    """[summary]
 
     Parameters
     ----------

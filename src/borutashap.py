@@ -7,7 +7,11 @@ import seaborn as sns
 import shap
 from numpy.random import choice
 from scipy.stats import binom_test, ks_2samp
-from sklearn.ensemble import IsolationForest, RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import (
+    IsolationForest,
+    RandomForestClassifier,
+    RandomForestRegressor,
+)
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -605,45 +609,32 @@ class BorutaShap:
             self.model, feature_perturbation="tree_path_dependent"
         )
 
-        if self.sample:
-            if self.classification:
-                # for some reason shap returns values wraped in a list of length 1
+        if self.classification:
+            if self.sample:
                 self.shap_values = np.array(explainer.shap_values(self.find_sample()))
-                if isinstance(self.shap_values, list):
-                    class_inds = range(len(self.shap_values))
-                    shap_imp = np.zeros(self.shap_values[0].shape[1])
-                    for ind in class_inds:
-                        shap_imp += np.abs(self.shap_values[ind]).mean(0)
-                    self.shap_values /= len(self.shap_values)
-                elif len(self.shap_values.shape) == 3:
-                    self.shap_values = np.abs(self.shap_values).sum(axis=0)
-                    self.shap_values = self.shap_values.mean(0)
-                else:
-                    self.shap_values = np.abs(self.shap_values).mean(0)
             else:
-                self.shap_values = explainer.shap_values(self.find_sample())
+                self.shap_values = np.array(explainer.shap_values(self.x_boruta))
+
+            if isinstance(self.shap_values, list):
+                class_inds = range(len(self.shap_values))
+                shap_imp = np.zeros(self.shap_values[0].shape[1])
+
+                for ind in class_inds:
+                    shap_imp += np.abs(self.shap_values[ind]).mean(0)
+                self.shap_values /= len(self.shap_values)
+
+            elif len(self.shap_values.shape) == 3:
+                self.shap_values = np.abs(self.shap_values).sum(axis=0)
+                self.shap_values = self.shap_values.mean(0)
+            else:
                 self.shap_values = np.abs(self.shap_values).mean(0)
         else:
-            if self.classification:
-                # for some reason shap returns values wraped in a list of length 1
-                self.shap_values = np.array(explainer.shap_values(self.x_boruta))
-                if isinstance(self.shap_values, list):
-                    class_inds = range(len(self.shap_values))
-                    shap_imp = np.zeros(self.shap_values[0].shape[1])
-
-                    for ind in class_inds:
-                        shap_imp += np.abs(self.shap_values[ind]).mean(0)
-
-                    self.shap_values /= len(self.shap_values)
-
-                elif len(self.shap_values.shape) == 3:
-                    self.shap_values = np.abs(self.shap_values).sum(axis=0)
-                    self.shap_values = self.shap_values.mean(0)
-                else:
-                    self.shap_values = np.abs(self.shap_values).mean(0)
+            if self.sample:
+                self.shap_values = explainer.shap_values(self.find_sample())
             else:
                 self.shap_values = explainer.shap_values(self.x_boruta)
-                self.shap_values = np.abs(self.shap_values).mean(0)
+
+            self.shap_values = np.abs(self.shap_values).mean(0)
 
     @staticmethod
     def binomial_h0_test(array, n, p, alternative):
