@@ -796,7 +796,8 @@ class BorutaShap:
         """
         my_string = str(my_string).lower()
         error_message = f"{my_string} is not a valid value did you mean to type 'all', 'tentative', 'accepted' or 'rejected' ?"
-        assert my_string in ["tentative", "rejected", "accepted", "all"], error_message
+        if my_string not in ["tentative", "rejected", "accepted", "all"]:
+            raise AssertionError(error_message)
 
     def plot(
         self,
