@@ -25,7 +25,8 @@ def load_data(data_type="classification"):
     error_message = (
         "No data_type was specified, use either 'classification' or 'regression'"
     )
-    assert data_type in ["classification", "regression"], error_message
+    if data_type not in ["classification", "regression"]:
+        raise AssertionError(error_message)
 
     if data_type == "classification":
         cancer = load_breast_cancer()
