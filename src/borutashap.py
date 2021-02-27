@@ -7,11 +7,8 @@ import seaborn as sns
 import shap
 from numpy.random import choice
 from scipy.stats import binom_test, ks_2samp
-from sklearn.ensemble import (
-    IsolationForest,
-    RandomForestClassifier,
-    RandomForestRegressor,
-)
+from sklearn.ensemble import (IsolationForest, RandomForestClassifier,
+                              RandomForestRegressor)
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -65,7 +62,8 @@ class BorutaShap:
         check_predict_proba = hasattr(self.model, "predict")
 
         try:
-            check_feature_importance = hasattr(self.model, "feature_importances_")
+            check_feature_importance = hasattr(
+                self.model, "feature_importances_")
         except Exception as e:
             print(f"Meet error when check model: {e}")
             check_feature_importance = True
@@ -119,7 +117,8 @@ class BorutaShap:
         elif isinstance(self.y, np.ndarray):
             return np.isnan(self.y).any()
         else:
-            raise AttributeError("Y must be a pandas Dataframe or a numpy array")
+            raise AttributeError(
+                "Y must be a pandas Dataframe or a numpy array")
 
     def check_missing_values(self):
         """
@@ -153,9 +152,11 @@ class BorutaShap:
         """
         model_name = str(type(self.model)).lower()
         if "catboost" in model_name:
-            self.model.fit(x, y, cat_features=self.x_categorical, verbose=False)
+            self.model.fit(
+                x, y, cat_features=self.x_categorical, verbose=False)
         elif "lightgbm" in model_name:
-            self.model.fit(x, y, categorical_feature=self.x_categorical, verbose=False)
+            self.model.fit(
+                x, y, categorical_feature=self.x_categorical, verbose=False)
         else:
             self.model.fit(x, y)
 
@@ -284,19 +285,23 @@ class BorutaShap:
             padded_history_shadow[map_index] = self.shadow_feature_importance[index]
             padded_history_x[map_index] = self.original_feature_importance[index]
 
-        self.history_shadow = np.vstack((self.history_shadow, padded_history_shadow))
+        self.history_shadow = np.vstack(
+            (self.history_shadow, padded_history_shadow))
         self.history_x = np.vstack((self.history_x, padded_history_x))
 
     def store_feature_importance(self):
         """
         [summary]
         """
-        self.history_x = pd.DataFrame(data=self.history_x, columns=self.all_columns)
+        self.history_x = pd.DataFrame(
+            data=self.history_x, columns=self.all_columns)
 
         self.history_x["max_shadow"] = [max(i) for i in self.history_shadow]
         self.history_x["min_shadow"] = [min(i) for i in self.history_shadow]
-        self.history_x["mean_shadow"] = [np.nanmean(i) for i in self.history_shadow]
-        self.history_x["median_shadow"] = [np.nanmedian(i) for i in self.history_shadow]
+        self.history_x["mean_shadow"] = [
+            np.nanmean(i) for i in self.history_shadow]
+        self.history_x["median_shadow"] = [
+            np.nanmedian(i) for i in self.history_shadow]
         self.history_x.dropna(axis=0, inplace=True)
 
     def results_to_csv(self, filename="feature_importance"):
@@ -339,7 +344,8 @@ class BorutaShap:
                 try:
                     self.x.drop(feature, axis=1, inplace=True)
                 except Exception as e:
-                    print(f"Due to the error {e}, can't remove the feature {feature}")
+                    print(
+                        f"Due to the error {e}, can't remove the feature {feature}")
 
     @staticmethod
     def average_of_list(lst):
@@ -413,12 +419,14 @@ class BorutaShap:
         [summary]
         """
         self.x_shadow = self.x.apply(np.random.permutation)
-        self.x_shadow.columns = ["shadow_" + feature for feature in self.x.columns]
+        self.x_shadow.columns = ["shadow_" +
+                                 feature for feature in self.x.columns]
         self.x_boruta = pd.concat([self.x, self.x_shadow], axis=1)
 
         col_types = self.x_boruta.dtypes
         self.x_categorical = list(
-            col_types[(col_types == "category") | (col_types == "object")].index
+            col_types[(col_types == "category") |
+                      (col_types == "object")].index
         )
 
     @staticmethod
@@ -468,7 +476,8 @@ class BorutaShap:
                 shap_values = self.shap_values
 
             original_feature_importance = shap_values[: len(self.x.columns)]
-            shadow_feature_importance = shap_values[len(self.x_shadow.columns) :]
+            shadow_feature_importance = shap_values[len(
+                self.x_shadow.columns):]
         elif self.importance_measure == "gini":
             if normalize:
                 feature_importances = self.calculate_zscore(
@@ -477,8 +486,10 @@ class BorutaShap:
             else:
                 feature_importances = np.abs(self.model.feature_importances_)
 
-            original_feature_importance = feature_importances[: len(self.x.columns)]
-            shadow_feature_importance = feature_importances[len(self.x.columns) :]
+            original_feature_importance = feature_importances[: len(
+                self.x.columns)]
+            shadow_feature_importance = feature_importances[len(
+                self.x.columns):]
         else:
             raise ValueError(
                 "No Importance_measure was specified select one of (shap, gini)"
@@ -563,7 +574,8 @@ class BorutaShap:
 
         if self.classification:
             if self.sample:
-                shap_values = np.array(explainer.shap_values(self.find_sample()))
+                shap_values = np.array(
+                    explainer.shap_values(self.find_sample()))
             else:
                 shap_values = np.array(explainer.shap_values(self.x_boruta))
 
@@ -796,7 +808,8 @@ class BorutaShap:
         """
         my_string = str(my_string).lower()
         error_message = f"{my_string} is not a valid value did you mean to type 'all', 'tentative', 'accepted' or 'rejected' ?"
-        assert my_string in ["tentative", "rejected", "accepted", "all"], error_message
+        if my_string not in ["tentative", "rejected", "accepted", "all"]:
+            raise AssertionError(error_message)
 
     def plot(
         self,
@@ -897,7 +910,8 @@ class BorutaShap:
 
         if y_scale == "log":
             ax.set(yscale="log")
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=x_rotation, size=x_size)
+        ax.set_xticklabels(ax.get_xticklabels(),
+                           rotation=x_rotation, size=x_size)
         ax.set_title("Feature Importance")
         ax.set_ylabel("Z-Score")
         ax.set_xlabel("Features")
@@ -949,4 +963,3 @@ class BorutaShap:
             [description]
         """
         return dict(zip(list_one, list_two))
-
